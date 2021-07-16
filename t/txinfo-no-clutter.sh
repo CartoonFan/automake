@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2012-2020 Free Software Foundation, Inc.
+# Copyright (C) 2012-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,10 @@ cat > Makefile.am << 'END'
 all-local: ps pdf dvi html # For "make distcheck".
 info_TEXINFOS = foo.texi doc/bar.texi baz.texi
 SUBDIRS = sub
+
+# Tell GNU make not to parallelize these, because they
+# have overlap between explicit and intermediate .dvi files.
+.NOTPARALLEL:
 END
 
 mkdir sub doc

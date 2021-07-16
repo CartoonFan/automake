@@ -1,9 +1,9 @@
 ## ------------------------                                 -*- Autoconf -*-
 ## Python file handling
 ## From Andrew Dalke
-## Updated by James Henstridge
+## Updated by James Henstridge and other contributors.
 ## ------------------------
-# Copyright (C) 1999-2020 Free Software Foundation, Inc.
+# Copyright (C) 1999-2021 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -86,21 +86,90 @@ AC_DEFUN([AM_PATH_PYTHON],
     m4_default([$3], [AC_MSG_ERROR([no suitable Python interpreter found])])
   else
 
-  dnl Query Python for its version number.  Getting [:3] seems to be
-  dnl the best way to do this; it's what "site.py" does in the standard
-  dnl library.
+  dnl Query Python for its version number.  Although site.py simply uses
+  dnl sys.version[:3], printing that failed with Python 3.10, since the
+  dnl trailing zero was eliminated. So now we output just the major
+  dnl and minor version numbers, as numbers. Apparently the tertiary
+  dnl version is not of interest.
 
   AC_CACHE_CHECK([for $am_display_PYTHON version], [am_cv_python_version],
-    [am_cv_python_version=`$PYTHON -c "import sys; sys.stdout.write(sys.version[[:3]])"`])
+    [am_cv_python_version=`$PYTHON -c "import sys; print ('%u.%u' % sys.version_info[[:2]])"`])
   AC_SUBST([PYTHON_VERSION], [$am_cv_python_version])
 
-  dnl Use the values of $prefix and $exec_prefix for the corresponding
+  dnl Use the values of sys.prefix and sys.exec_prefix for the corresponding
   dnl values of PYTHON_PREFIX and PYTHON_EXEC_PREFIX.  These are made
   dnl distinct variables so they can be overridden if need be.  However,
   dnl general consensus is that you shouldn't need this ability.
+  dnl Also allow directly setting the prefixes via configure args.
 
-  AC_SUBST([PYTHON_PREFIX], ['${prefix}'])
-  AC_SUBST([PYTHON_EXEC_PREFIX], ['${exec_prefix}'])
+  if test "x$prefix" = xNONE
+  then
+   am__usable_prefix=$ac_default_prefix
+  else
+   am__usable_prefix=$prefix
+  fi
+
+  AC_ARG_WITH([python_prefix],
+  [AS_HELP_STRING([--with-python_prefix],
+                 [override the default PYTHON_PREFIX])],
+  [ am_python_prefix_subst="$withval"
+   am_cv_python_prefix="$withval"
+   AC_MSG_CHECKING([for $am_display_PYTHON prefix])
+   AC_MSG_RESULT([$am_cv_python_prefix])],
+  [
+  AC_CACHE_CHECK([for $am_display_PYTHON prefix], [am_cv_python_prefix],
+    [am_cv_python_prefix=`$PYTHON -c "import sys; sys.stdout.write(sys.prefix)"`])
+
+  dnl If sys.prefix is a subdir of $prefix, replace the literal value of $prefix
+  dnl with a variable reference so it can be overridden.
+  case $am_cv_python_prefix in
+     $am__usable_prefix*)
+       am__strip_prefix=`echo "$am__usable_prefix" | sed 's|.|.|g'`
+       am_python_prefix_subst=`echo "$am_cv_python_prefix" | sed "s,^$am__strip_prefix,\\${prefix},"`
+       ;;
+     *)
+       am_python_prefix_subst=$am_cv_python_prefix
+       ;;
+  esac
+  ])
+  AC_SUBST([PYTHON_PREFIX], [$am_python_prefix_subst])
+
+  AC_ARG_WITH([python_exec_prefix],
+  [AS_HELP_STRING([--with-python_exec_prefix],
+                 [override the default PYTHON_EXEC_PREFIX])],
+  [ am_python_exec_prefix_subst="$withval"
+   am_cv_python_exec_prefix="$withval"
+   AC_MSG_CHECKING([for $am_display_PYTHON exec_prefix])
+   AC_MSG_RESULT([$am_cv_python_exec_prefix])],
+  [
+  dnl --with-python_prefix was given - use its value for python_exec_prefix too
+  AS_IF([test -n "$with_python_prefix"], [am_python_exec_prefix_subst="$with_python_prefix"
+  am_cv_python_exec_prefix="$with_python_prefix"
+  AC_MSG_CHECKING([for $am_display_PYTHON exec_prefix])
+  AC_MSG_RESULT([$am_cv_python_exec_prefix])],
+  [
+  AC_CACHE_CHECK([for $am_display_PYTHON exec_prefix], [am_cv_python_exec_prefix],
+    [am_cv_python_exec_prefix=`$PYTHON -c "import sys; sys.stdout.write(sys.exec_prefix)"`])
+  dnl If sys.exec_prefix is a subdir of $exec_prefix, replace the
+  dnl literal value of $exec_prefix with a variable reference so it can
+  dnl be overridden.
+  if test "x$exec_prefix" = xNONE
+  then
+   am__usable_exec_prefix=$am__usable_prefix
+  else
+   am__usable_exec_prefix=$exec_prefix
+  fi
+  case $am_cv_python_exec_prefix in
+     $am__usable_exec_prefix*)
+       am__strip_prefix=`echo "$am__usable_exec_prefix" | sed 's|.|.|g'`
+       am_python_exec_prefix_subst=`echo "$am_cv_python_exec_prefix" | sed "s,^$am__strip_prefix,\\${exec_prefix},"`
+       ;;
+     *)
+       am_python_exec_prefix_subst=$am_cv_python_exec_prefix
+       ;;
+  esac
+  ])])
+  AC_SUBST([PYTHON_EXEC_PREFIX], [$am_python_exec_prefix_subst])
 
   dnl At times (like when building shared libraries) you may want
   dnl to know which OS platform Python thinks this is.
@@ -138,11 +207,11 @@ except ImportError:
   dnl Query distutils for this directory.
   AC_CACHE_CHECK([for $am_display_PYTHON script directory],
     [am_cv_python_pythondir],
-    [if test "x$prefix" = xNONE
+    [if test "x$am_cv_python_prefix" = x
      then
-       am_py_prefix=$ac_default_prefix
+       am_py_prefix=$am__usable_prefix
      else
-       am_py_prefix=$prefix
+       am_py_prefix=$am_cv_python_prefix
      fi
      am_cv_python_pythondir=`$PYTHON -c "
 $am_python_setup_sysconfig
@@ -155,13 +224,13 @@ sys.stdout.write(sitedir)"`
      case $am_cv_python_pythondir in
      $am_py_prefix*)
        am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
-       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,$PYTHON_PREFIX,"`
+       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,\\${PYTHON_PREFIX},"`
        ;;
      *)
        case $am_py_prefix in
          /usr|/System*) ;;
          *)
-	  am_cv_python_pythondir=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
+	  am_cv_python_pythondir="\${PYTHON_PREFIX}/lib/python$PYTHON_VERSION/site-packages"
 	  ;;
        esac
        ;;
@@ -180,30 +249,30 @@ sys.stdout.write(sitedir)"`
   dnl Query distutils for this directory.
   AC_CACHE_CHECK([for $am_display_PYTHON extension module directory],
     [am_cv_python_pyexecdir],
-    [if test "x$exec_prefix" = xNONE
+    [if test "x$am_cv_python_exec_prefix" = x
      then
-       am_py_exec_prefix=$am_py_prefix
+       am_py_exec_prefix=$am__usable_exec_prefix
      else
-       am_py_exec_prefix=$exec_prefix
+       am_py_exec_prefix=$am_cv_python_exec_prefix
      fi
      am_cv_python_pyexecdir=`$PYTHON -c "
 $am_python_setup_sysconfig
 if can_use_sysconfig:
-    sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_prefix'})
+    sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_exec_prefix'})
 else:
     from distutils import sysconfig
-    sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_prefix')
+    sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_exec_prefix')
 sys.stdout.write(sitedir)"`
      case $am_cv_python_pyexecdir in
      $am_py_exec_prefix*)
        am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
-       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,$PYTHON_EXEC_PREFIX,"`
+       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,\\${PYTHON_EXEC_PREFIX},"`
        ;;
      *)
        case $am_py_exec_prefix in
          /usr|/System*) ;;
          *)
-	   am_cv_python_pyexecdir=$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages
+	   am_cv_python_pyexecdir="\${PYTHON_EXEC_PREFIX}/lib/python$PYTHON_VERSION/site-packages"
 	   ;;
        esac
        ;;

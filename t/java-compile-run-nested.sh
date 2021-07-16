@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2011-2020 Free Software Foundation, Inc.
+# Copyright (C) 2011-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,6 +70,10 @@ check-local: test-built
 installcheck-local: test-installed run-installed
 
 .PHONY: test-built test-installed run-installed
+
+# The test can fail under a parallel make, so disable.
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 ## WRAPPER SCRIPT ##
@@ -92,6 +96,10 @@ jprog: jprog.sh
 
 EXTRA_DIST = jprog.sh
 CLEANFILES = jprog
+
+# The test can fail under a parallel make, so disable.
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 cat > bin/jprog.sh <<'END'
@@ -111,6 +119,12 @@ mkdir jprog
 cat > jprog/Makefile.am <<'END'
 dist_jprogclass_JAVA = Main.java HelloStream.java
 nodist_jprogclass_JAVA = PkgLocation.java
+
+# Tell GNU make not to parallelize, since the tests can result in, for example:
+#   /p/bin/install: cannot create regular file '/w/co/automake/t/java-compile-run-nested.dir/_inst/share/java-compile-run-nested/jprog/HelloStream.class':
+#   File exists
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 cat > jprog/PkgLocation.jin <<'END'
@@ -184,6 +198,10 @@ TESTS = \
 XFAIL_TESTS = badarg.test
 
 EXTRA_DIST = $(TESTS)
+
+# The test can fail under a parallel make, so disable.
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 cat > tests/simple.test <<'END'

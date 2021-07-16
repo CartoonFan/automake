@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 1998-2020 Free Software Foundation, Inc.
+# Copyright (C) 1998-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,6 +47,11 @@ Baz.java:
 	chmod a-w $@-t && mv -f $@-t $@
 
 DISTCLEANFILES = Baz.java Foo2.java
+
+# Tell GNU make not to parallelize, since the tests can result in, for example:
+#   /usr/bin/install: cannot create regular file '/u/karl/gnu/src/akarl/t/java-uninstall.dir/java-uninstall-1.0/_inst/java/Baz.class': File exists
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 echo 'class aClass {}' > Foo.java

@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 1996-2020 Free Software Foundation, Inc.
+# Copyright (C) 1996-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -86,8 +86,8 @@ test -f src/xfoo.c
 test -f src/xbar.c
 
 $MAKE distclean
-test -f src/xfoo.c
-test -f src/xbar.c
+test ! -e src/xfoo.c
+test ! -e src/xbar.c
 
 # Re-create Makefile.
 mv config.sav config.status

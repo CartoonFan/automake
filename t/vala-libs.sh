@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2012-2020 Free Software Foundation, Inc.
+# Copyright (C) 2012-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,11 +32,11 @@ END
 
 cat > Makefile.am << 'END'
 AUTOMAKE_OPTIONS = subdir-objects
-lib_LIBRARIES = libmu.a
+lib_LIBRARIES = libservice.a
 lib_LTLIBRARIES = src/libzardoz.la
-libmu_a_SOURCES = mu.vala mu2.c mu.vapi mu2.h
-libmu_a_CPPFLAGS = -DOKOKIMDEFINED=1
-libmu_a_VALAFLAGS = --vapidir=$(srcdir)
+libservice_a_SOURCES = service.vala cservice.c cservice.h
+libservice_a_CPPFLAGS = -DOKOKIMDEFINED=1
+libservice_a_VALAFLAGS = --vapidir=$(srcdir) --pkg cservice --library service
 AM_CFLAGS = $(GOBJECT_CFLAGS)
 src_libzardoz_la_LIBADD = $(GOBJECT_LIBS)
 src_libzardoz_la_SOURCES = src/zardoz-foo.vala src/zardoz-bar.vala
@@ -51,28 +51,37 @@ $AUTOMAKE -a
 
 ./configure
 
-cat > mu2.c << 'END'
-#include "mu2.h"
-int mu2 (void)
+cat > cservice.c << 'END'
+#include "cservice.h"
+int c_service_mu_call (void)
 {
   return OKOKIMDEFINED;
 }
 END
 
-cat > mu2.h << 'END'
-int mu2 (void);
+cat > cservice.h << 'END'
+int c_service_mu (void);
 END
 
-cat > mu.vapi <<'END'
-[CCode (cheader_filename = "mu2.h", cname = "mu2")]
-public int c_mu2 ();
+cat > cservice.vapi <<'END'
+namespace CService {
+  public class Mu {
+    [CCode (cheader_filename = "cservice.h", cname = "c_service_mu_call")]
+    public int call ();
+  }
+}
 END
 
-cat > mu.vala << 'END'
-int main ()
-{
-  stdout.printf ("mumumu\n");
-  return c_mu2 ();
+cat > service.vala << 'END'
+namespace CService {
+public class Generator : Object {
+	public Generator () {
+		stdout.printf ("construct generator");
+	}
+	public void init () {
+		stdout.printf ("init generator");
+	}
+}
 }
 END
 
@@ -87,12 +96,12 @@ public class Foo {
 END
 
 $MAKE
-test -f libmu.a
+test -f libservice.a
 test -f src/libzardoz.la
-$FGREP "mumumu" mu.c
+$FGREP "construct generator" service.c
 $FGREP "FooFooFoo" src/zardoz-foo.c
 $FGREP "BarBarBar" src/zardoz-bar.c
-test -f libmu_a_vala.stamp
+test -f libservice_a_vala.stamp
 test -f src_libzardoz_la_vala.stamp
 
 $MAKE distcheck

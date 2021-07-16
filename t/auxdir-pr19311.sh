@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2014-2020 Free Software Foundation, Inc.
+# Copyright (C) 2014-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,14 @@
 am_create_testdir=empty
 required=cc
 . test-init.sh
+
+ver=$($AUTOCONF --version | sed -n '1s/.* //p')
+case $ver in
+  2.69[d-z]*) ;;
+  2.[7-9][0-9]*) ;;
+  [3-9].*) ;;
+  *) skip_ 'this test passes with autoconf-2.69d and newer'
+esac
 
 cat > configure.ac <<END
 AC_INIT([$me], [1.0])

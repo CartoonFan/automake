@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2006-2020 Free Software Foundation, Inc.
+# Copyright (C) 2006-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ for ac_init_args in '' '([x])'; do
     unindent >configure.ac <<END
       AC_INIT$ac_init_args
       AM_INIT_AUTOMAKE$am_init_args
+      AC_OUTPUT
 END
     cat configure.ac # For debugging.
     # The error message should mention AC_INIT, not AC_PACKAGE_VERSION.

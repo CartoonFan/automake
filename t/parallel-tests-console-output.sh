@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2011-2020 Free Software Foundation, Inc.
+# Copyright (C) 2011-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,13 +34,13 @@ a/b/skip.log: sub/error2.log
 END
 
 cat > exp <<'END'
+ERROR: error.test
+ERROR: sub/error2.test
 FAIL: fail.test
 PASS: pass.test
-ERROR: error.test
-XPASS: sub/xpass.test
-XFAIL: xfail.test
-ERROR: sub/error2.test
 SKIP: a/b/skip.test
+XFAIL: xfail.test
+XPASS: sub/xpass.test
 END
 
 mkdir sub a a/b
@@ -93,7 +93,7 @@ for vpath in : false; do
   fi
   $srcdir/configure
   run_make -O -e FAIL check
-  LC_ALL=C grep '^[A-Z][A-Z]*:' stdout > got
+  LC_ALL=C grep '^[A-Z][A-Z]*:' stdout | sort > got
   cat got
   diff $srcdir/exp got
   cd $srcdir

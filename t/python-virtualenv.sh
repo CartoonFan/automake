@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2011-2020 Free Software Foundation, Inc.
+# Copyright (C) 2011-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ cwd=$(pwd) || fatal_ "getting current working directory"
 py_version=$(python -c 'import sys; print("%u.%u" % tuple(sys.version_info[:2]))')
 py_site=$VIRTUAL_ENV/lib/python$py_version/site-packages
 
-# We need to do do this early, just to set some cache variables properly,
+# We need to do this early, just to set some cache variables properly,
 # since because we're going to unset $PYTHON next.
 if python_has_pep3147; then
   : PEP 3147 will be used in installation of ".pyc" files

@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2003-2020 Free Software Foundation, Inc.
+# Copyright (C) 2003-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -61,6 +61,11 @@ check-all:
 	test -f debug/libbar/libbar.a
 	test -f libfoo/libfoo.a
 	test -f libbar/libbar.a
+# Tell GNU make not to parallelize, since the tests can result in, for example:
+#   make[5]: *** No rule to make target 'mostlyclean'.  Stop.
+#   make[5]: Leaving directory '/u/karl/gnu/src/akarl/contrib/t/multilib.dir/build/debug/libbar/sub'
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 EOF
 
 # libfoo tests multilib supports when there are no subdirectories
@@ -89,6 +94,10 @@ cat >libfoo/Makefile.am <<'END'
 noinst_LIBRARIES = libfoo.a
 libfoo_a_SOURCES = foo.c
 include $(top_srcdir)/multilib.am
+
+# The test can fail under a parallel make, so disable.
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 : > libfoo/foo.c
@@ -116,6 +125,10 @@ SUBDIRS = sub
 noinst_LIBRARIES = libbar.a
 libbar_a_SOURCES = bar.c
 include $(top_srcdir)/multilib.am
+
+# The test can fail under a parallel make, so disable.
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 mkdir libbar/sub

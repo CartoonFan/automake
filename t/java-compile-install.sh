@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2011-2020 Free Software Foundation, Inc.
+# Copyright (C) 2011-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,6 +78,11 @@ installcheck-local: test-install
 .PHONY: test test-install
 
 DISTCLEANFILES = Baz.java Foo2.java
+
+# Tell GNU make not to parallelize, since the tests can result in, for example:
+#   /usr/bin/install: cannot create regular file '/u/karl/gnu/src/akarl/t/java-compile-install.dir/_inst/share/java/Baz.class': File exists
+# No evident way to debug or reliably reproduce.
+.NOTPARALLEL:
 END
 
 echo 'class aClass {}' > Foo.java

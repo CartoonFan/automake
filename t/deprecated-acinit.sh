@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2011-2020 Free Software Foundation, Inc.
+# Copyright (C) 2011-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ for ac_init in AC_INIT 'AC_INIT([Makefile.am])'; do
         $ac_init
         $am_init_automake
         AC_CONFIG_FILES([Makefile])
+        AC_OUTPUT
 END
     cat configure.ac # For debugging.
     $ACLOCAL 2>stderr && { cat stderr >&2; exit 1; }

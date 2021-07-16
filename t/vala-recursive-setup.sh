@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 1996-2020 Free Software Foundation, Inc.
+# Copyright (C) 1996-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,9 +77,9 @@ grep 'am--error' src/zardoz.[ch] && exit 1
 # Check the distribution.
 
 $MAKE distcheck
-$MAKE distclean
+$MAKE maintainer-clean
 
-# Tru a VPATH setup.
+# Try a VPATH setup.
 
 mkdir build
 cd build
@@ -89,19 +89,19 @@ $MAKE distcheck
 
 # Test rebuild rules from builddir.
 
-rm -f ../src/zardoz.h
-$MAKE -C src ../../src/zardoz.h
-test -f ../src/zardoz.h
+rm -f src/zardoz.h
+$MAKE -C src zardoz.h
+test -f src/zardoz.h
 
-rm -f ../src/zardoz.c
+rm -f src/zardoz.c
 $MAKE
-grep 'Zardoz!' ../src/zardoz.c
+grep 'Zardoz!' src/zardoz.c
 
 $sleep
 sed 's/Zardoz!/FooBar!/' ../src/zardoz.vala > t
 mv -f t ../src/zardoz.vala
 $MAKE
-grep 'FooBar!' ../src/zardoz.c
-grep 'Zardoz!' ../src/zardoz.c && exit 1
+grep 'FooBar!' src/zardoz.c
+grep 'Zardoz!' src/zardoz.c && exit 1
 
 :

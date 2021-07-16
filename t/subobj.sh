@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 1999-2020 Free Software Foundation, Inc.
+# Copyright (C) 1999-2021 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,8 +50,8 @@ grep "option 'subdir-objects' is disabled" stderr
 # Verbose tips should be given, but not too many times.
 for msg in \
   "possible forward-incompatibility" \
+  "For now,.* corresponding" \
   "advi[sc]e.* 'subdir-objects' option throughout" \
-  "unconditionally.* object file.* same subdirectory" \
 ; do
   test $(grep -c "$msg" stderr) -eq 1
 done

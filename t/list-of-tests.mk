@@ -137,6 +137,7 @@ t/alpha2.sh \
 t/amhello-cflags.sh \
 t/amhello-cross-compile.sh \
 t/amhello-binpkg.sh \
+t/am-optional-automake.sh \
 t/aminit-moreargs-deprecation.sh \
 t/aminit-trailing-dnl-comment-pr16841.sh \
 t/amassign.sh \

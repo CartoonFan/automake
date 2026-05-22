@@ -4137,6 +4137,51 @@ option (@pxref{List of Automake options}):
 AM_INIT_AUTOMAKE([no-define ...])
 @end example
 
+@item AM_OPTIONAL_AUTOMAKE([@var{options}])
+@acindex AM_OPTIONAL_AUTOMAKE
+@cindex Optional @code{dist-} archives
+@comment https://debbugs.gnu.org/cgi/bugreport.cgi?bug=81040
+@var{options} is a whitespace-separated list of @code{dist-} option
+names, using the same spellings @code{AM_INIT_AUTOMAKE} accepts:
+@option{dist-bzip2}, @option{dist-bzip3}, @option{dist-xz},
+@option{dist-lzip}, @option{dist-zstd}, @option{dist-zip},
+@option{dist-shar}, and @option{dist-tarZ}.  For each, @samp{make
+dist} builds the matching archive when its compressor or archiver is
+available and skips it otherwise, including when a tool present at
+@command{configure} time is gone by @samp{make dist} time; a missing
+listed tool does not make @samp{make dist} fail.  An unknown
+@var{option} is reported as a @code{syntax} warning and ignored.
+
+@cindex minimal system images
+@cindex CI images, minimal
+@cindex container images, minimal
+@cindex compression tools, making optional
+This is meant for systems that intentionally lack some compression
+tools, such as minimal container or CI images, where installing
+@command{bzip3}, @command{lzip}, @command{zstd}, etc.@: only so that
+@samp{make distcheck} succeeds is undesirable.  It avoids overriding
+@code{DIST_TARGETS} or @code{DIST_ARCHIVES} by hand.
+
+The macro does not pass the options to @command{automake}; it uses
+only the @code{distdir} target and @code{$(am__tar)}, present since
+Automake 1.10, so an older @command{automake} that does not recognize
+an option (such as @option{dist-bzip3}) is not a problem.
+
+@example
+AM_INIT_AUTOMAKE([-Wall foreign dist-bzip2 dist-xz dist-zip])
+AM_OPTIONAL_AUTOMAKE([dist-bzip3])
+@end example
+
+Here @file{.tar.gz}, @file{.tar.bz2}, @file{.tar.xz}, and @file{.zip}
+are always built (and @samp{make dist} fails if their tools are
+missing), while @file{.tar.bz3} is built only if @command{bzip3} is
+installed.
+
+A given @code{dist-} option should appear in @code{AM_INIT_AUTOMAKE}
+or @code{AM_OPTIONAL_AUTOMAKE}, not both; listing it in
+@code{AM_INIT_AUTOMAKE} already makes that format mandatory.  The
+macro may be called more than once; repeating an option is a no-op.
+
 @item AM_PATH_LISPDIR
 @acindex AM_PATH_LISPDIR
 @vindex EMACS
@@ -9468,7 +9513,8 @@ make it use a different one, set the @env{BZIP2} environment variable.
 @vindex BZIP3
 Generate a @samp{bzip3} tar archive of the distribution.  Unlike the
 other compression programs here, @command{bzip3} does not read any
-environment variables.
+environment variables.  To build this only when @command{bzip3} is
+present, see @code{AM_OPTIONAL_AUTOMAKE} (@pxref{Public Macros}).
 
 @item @code{dist-lzip}
 @trindex dist-lzip
@@ -9478,7 +9524,9 @@ Generate an @samp{lzip} tar archive of the distribution.
 @command{lzip} archives are usually smaller than
 @command{bzip2}-compressed archives.  By default, this rule makes
 @samp{lzip} use a compression option of @option{-9}.  To make it use a
-different one, set the @env{LZIP_OPT} environment variable.
+different one, set the @env{LZIP_OPT} environment variable.  To build
+this only when @command{lzip} is present, see
+@code{AM_OPTIONAL_AUTOMAKE} (@pxref{Public Macros}).
 
 @item @code{dist-xz}
 @trindex dist-xz
@@ -9510,7 +9558,8 @@ default compression ratio, but with a progress indicator: @samp{make
 dist-zstd ZSTD_OPT=-19v}.  However, note that for compatibility with
 @command{zstd} itself, you may instead set the @env{ZSTD_CLEVEL}
 environment variable, in which case, any @env{ZSTD_OPT} setting is
-ignored.
+ignored.  To build this only when @command{zstd} is present, see
+@code{AM_OPTIONAL_AUTOMAKE} (@pxref{Public Macros}).
 
 @item @code{dist-shar}
 @trindex dist-shar

@@ -2,6 +2,18 @@ For planned incompatibilities in a possible future Automake 2.0 release,
 please see NEWS-future and start following the advice there now.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+New in 1.18.2 (????-??-??):
+
+* New features added
+
+  - New autoconf macro AM_OPTIONAL_AUTOMAKE.  It takes a list of
+    `dist-XXX' option names (dist-bzip2, dist-bzip3, dist-xz,
+    dist-lzip, dist-zstd, dist-zip, dist-shar, dist-tarZ);
+    `make dist' builds each archive when its tool is available and skips
+    it otherwise, without making `make dist' fail.  This is for
+    systems that intentionally lack some compression tools.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 New in 1.18.1 (2025-06-25):
 
 * Bugs fixed

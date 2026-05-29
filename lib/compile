@@ -338,7 +338,10 @@ while true; do
   sleep 1
 done
 # FIXME: race condition here if user kills between mkdir and trap.
-trap "rmdir '$lockdir'; exit 1" 1 2 15
+cleanup () {
+  rmdir "$lockdir"
+}
+trap "cleanup; exit 1" 1 2 15
 
 # Run the compile.
 "$@"

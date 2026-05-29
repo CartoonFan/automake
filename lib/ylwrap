@@ -159,8 +159,12 @@ case $prog in
   *[\\/]*) prog=`pwd`/$prog ;;
 esac
 
+origdirname=`pwd`
 dirname=ylwrap$$
-do_exit="cd '`pwd`' && rm -rf $dirname > /dev/null 2>&1;"' (exit $ret); exit $ret'
+cleanup () {
+  cd "$origdirname" && rm -rf $dirname > /dev/null 2>&1
+}
+do_exit='cleanup; (exit $ret); exit $ret'
 trap "ret=129; $do_exit" 1
 trap "ret=130; $do_exit" 2
 trap "ret=141; $do_exit" 13

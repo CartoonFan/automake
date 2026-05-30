@@ -43,6 +43,7 @@ dist_automake_ac_DATA = \
   %D%/missing.m4 \
   %D%/mkdirp.m4 \
   %D%/obsolete.m4 \
+  %D%/optional.m4 \
   %D%/options.m4 \
   %D%/python.m4 \
   %D%/prog-cc-c-o.m4 \

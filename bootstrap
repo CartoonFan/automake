@@ -1,6 +1,6 @@
 #! /bin/sh
-
 # This script helps bootstrap automake, when checked out from git.
+# It should not be run from a tree made from a (pre)release tarball.
 #
 # Copyright (C) 2002-2026 Free Software Foundation, Inc.
 # Originally written by Pavel Roskin <proski@gnu.org> September 2002.
@@ -21,6 +21,34 @@
 # Since Automake uses itself in its build process, we can't simply run
 # 'autoreconf -i' which would require Automake to already be
 # installed.
+
+if test ! -d .git; then
+  cat <<END_NOT_GIT >&2
+$0: no .git directory, so exiting.
+Long-winded explanation:
+
+The Automake bootstrap script is intended to be run only from the
+top level of a git checkout of Automake, but no .git directory
+is present (in `pwd`), so I'm exiting.
+
+In particular, it should not be run from a source tree expanded from a
+release (or test release, etc.) tarball, because those trees already
+contain everything needed for compilation, with minimal dependencies.
+The development-specific actions of this bootstrap script will mess that
+up, e.g., makeinfo will be required to build after running bootstrap.
+
+(By the way, this bootstrap script is still included in the release
+tarballs even though it is not intended to be run in that context simply
+because it is a nontrivial source file and thus potentially useful to
+developers to see, regardless.)
+
+If you desire to run the bootstrap script in some tree that is not a git
+checkout, just mkdir .git and the script will proceed.
+
+Goodbye from $0.
+END_NOT_GIT
+  exit 1
+fi
 
 # Don't ignore failures.
 set -e

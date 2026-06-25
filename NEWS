@@ -13,6 +13,11 @@ New in 1.18.2 (????-??-??):
     it otherwise, without making `make dist' fail.  This is for
     systems that intentionally lack some compression tools.
 
+* Bugs fixed
+
+  - Busybox tar no longer assumed to be GNU tar just because it
+    supports --version.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 New in 1.18.1 (2025-06-25):
 
